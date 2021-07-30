@@ -1,5 +1,7 @@
 ## 武汉大学课程历史给分批量获取脚本
 
+所有数据均来自于网上，本项目对数据真实性不做保证
+
 * Author：[NagisaCo](https://github.com/NagisaCo)
 * Github：https://github.com/NagisaCo/CourseGrade
 
