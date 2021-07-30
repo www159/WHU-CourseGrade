@@ -5,29 +5,30 @@
 import os
 import sys
 import pickle
+import Tools.DB as DB
 import Tools.CourseId as CourseId
 import Tools.GradeInfo as GradeInfo
-from Tools.API.bkxk import RSAError
-from Tools.API.mxj import TokenError
 import Tools.CourseInfo as CourseInfo
 import Tools.ConfigLoader as ConfigLoader
+from Tools.API.bkxk import RSAException
+from Tools.API.mxj import TokenException
 
-def __LoadConfig() -> ConfigLoader.Config:
+def __LoadConfig() -> dict:
     """
     加载配置文件
     
     Parameters:
     
     Returns:
-        ConfigLoader.Config - 配置文件内容
+        dict - 配置文件内容
     """
     try:
         return ConfigLoader.load()
-    except ConfigLoader.LoadConfigError as err:
-        print("【%s】%s" % (err.name,err.reason))
+    except ConfigLoader.LoadConfigException as err:
+        print(f"【{err.name}】{err.reason}")
         sys.exit(1)
 
-def __storeResult(course :list):
+def __storeFile(course :list):
     """
     保存已获取列表至本地
     
@@ -37,10 +38,10 @@ def __storeResult(course :list):
     Returns:
         
     """
-    with open("result.txt", "wb") as f:
+    with open("result", "wb") as f:
         pickle.dump(course, f)
 
-def __loadResult() -> list:
+def __loadFile() -> list:
     """
     加载本地数据
     
@@ -49,11 +50,11 @@ def __loadResult() -> list:
     Returns:
         list - 加载的列表
     """
-    with open("result.txt", "rb") as f:
+    with open("result", "rb") as f:
         result = pickle.load(f)
     return result
 
-def __getInfo(config :ConfigLoader.Config) -> list:
+def __getCourse(config :dict) -> list:
     """
     获取课程数据
     
@@ -63,20 +64,43 @@ def __getInfo(config :ConfigLoader.Config) -> list:
         list - 获取的课程详情
     """
     try:
-        idList = CourseId.getCourseId(config.htmlSource)
+        idList = CourseId.getCourseId(config['base']['htmlsource'])
         session = CourseInfo.init(config)
-        course = CourseInfo.getCourseInfo(idList, config.gnmkdm, session)
-        course_grade = GradeInfo.getGradeInfo(course, config.token)
-    except (CourseId.LoadError, RSAError, TokenError) as err:
-        print("【%s】%s" % (err.name,err.reason))
+        course = CourseInfo.getCourseInfo(idList, config['bkxk']['gnmkdm'], session)
+        course_grade = GradeInfo.getGradeInfo(course, config['mxj']['token'])
+    except (CourseId.LoadException, RSAException, TokenException) as err:
+        print(f"【{err.name}】{err.reason}")
         sys.exit(1)
 
     return course_grade
 
+def __storeDatabase(course :list):
+    """
+    保存已获取列表至数据库
+    
+    Parameters:
+        course - 已获取详情
+
+    Returns:
+        
+    """
+    DB.init(config['db']['server'], config['db']['username'], config['db']['encryptedpassword'], config['db']['database'])
+    try:
+        for item in course:
+            DB.update(item)
+    
+        DB.close()
+    except Exception:
+        print("【数据库操作失败】请检查数据库结构或重新导入course_grade.sql后重试...")
+        sys.exit(1)
+
 if __name__ == "__main__":
     
     config = __LoadConfig()
-    info = __getInfo(config)
-
-    __storeResult(info)
+    info = __getCourse(config)
+    __storeFile(info)
+    #info = __loadFile() 
+    
+    if (config['db']['server'] != "" and config['db']['username'] != "" and config['db']['encryptedpassword'] != "" and config['db']['database'] != ""):
+        __storeDatabase(info)
     

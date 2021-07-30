@@ -7,17 +7,12 @@ import time
 import base64
 import requests
 from bs4 import BeautifulSoup
+from Tools.Tool import __getTime
 from urllib.parse import urlencode
+from Tools.Tool import __decryptRSA
+from Tools.Exception import RSAException
 
 _path = "https://bkxk.whu.edu.cn"
-
-class RSAError(Exception):
-    """
-    RSA解密异常
-    """
-    def __init__(self, name, reason):
-        self.name = name
-        self.reason = reason
 
 class CourseInfo:
     """
@@ -31,34 +26,7 @@ class CourseInfo:
         self.subcategory = "" #课程归属
         self.academy = "" #开课学院
         self.credit = 0 #学分
-        self.time = 0 #查询时间
-
-def decryptRSA(data :str) -> str:
-    """
-    RSA解密
-    
-    Parameters:
-        data - 待解密数据
-    
-    Returns:
-        str - 已解密数据
-    """
-    privkey = rsa.PrivateKey.load_pkcs1("-----BEGIN RSA PRIVATE KEY-----\nMIICXQIBAAKBgQC8yZpOztMWmzYzvvswTFO/uTaymVG3exS7apoPaABHYI4G1ln6LHqwiL0Zf2aqg0eucPyCYBAr/SvLFzXm/xFCUJQO/EeGOjZeKSUqP8w6n9I488RuEoUS8YeNpLshYAHWbFPBqFuMn2jz70kRb9FqgFwIpLHpBPJ1knw423O5WwIDAQABAoGAVthXB9HVAR09fehpHPq/u/6zzs0A7mrMSrrrTBMHrc4ZB8QreA5mEjeU5dnZnK7vlqubPU57ogDA2JhAz5aelRybBVtx3VWANmHLRVvGrGreAMAxX65ZK0ySZlpuafJWm8sl+ezc0FKGvgJiyf/r8QX+ajBSqYbiErhtFjUaXiECQQDkblMWsWqfCxz8PqgxJLuZsf8uQdbkqVOy3gHJSB0vluSAWbL4UVY1fJMUnFBoXzUbC/X9JUgdNvD22opfsQvtAkEA05JxFVCbdWt8H3hL2yDAmUds58N3WwaQW3Np/H3Qc+/ecclxeFAR8Kxqjw9r2phGs600mNW9uqEc7FX7xVwBZwJAAn/GfvAP9496kLPqySbaupK89PeZb0T++mz9XgNg9l1TQKg6kgbpx4oGXepb4thvz0zxMwTOZitstXasnuFj/QJBALwgANF1JWZZNrs82iZ0jw08R4gldGHKCl5m150dulb8uQzwlCbo+6rHhNDEY6CxulxV7OjhVZ03WWKEaiTpVI0CQQCqKnFmdheJQDzMfKjTo1F45E2O98uSZ0BUiLStWTuGfxDLlcYgytmjjMHBIgGMOL2150PUcMyrWC1Ko3o1rW5/\n-----END RSA PRIVATE KEY-----")
-
-    # 解密数据
-    message = rsa.decrypt(base64.b64decode(data), privkey)
-    return message.decode('utf8')
-
-def __getTime() -> str:
-    """
-    获取当前13位时间戳
-    
-    Parameters:
-        
-    Returns:
-        str - 当前时间戳
-    """
-    return str(round(time.time() * 1000))
+        self.time = "" #查询时间
 
 def __getEncryptPasswd(session :requests.sessions.Session, passwd :str) -> str:
     """
@@ -81,9 +49,9 @@ def __getEncryptPasswd(session :requests.sessions.Session, passwd :str) -> str:
     exponent = int.from_bytes(base64.b64decode(page.json()['exponent']),byteorder='big',signed=False)
     pubkey = rsa.PublicKey(modulus,exponent)
     try:
-        password = decryptRSA(passwd)#获取配置文件中加密后解密的密码
+        password = __decryptRSA(passwd)#获取配置文件中加密后解密的密码
     except Exception:
-        raise RSAError("RSA解密失败", "无法解析encryptedPassword，请确认使用Encryptor.py加密后重试...")
+        raise RSAException("RSA解密失败", "无法解析encryptedPassword，请确认使用Encryptor.py加密后重试...")
     
     #加密登录密码
     encryptPasswd = base64.b64encode(rsa.encrypt(password.encode('utf8'),pubkey)).decode('utf8')

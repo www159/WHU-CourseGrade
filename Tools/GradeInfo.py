@@ -4,35 +4,9 @@
 # @Author  : NagisaCo
 import os
 import Tools.API.mxj as mxj
+from Tools.Tool import __divList
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor, as_completed
-
-
-def __divList(ls :list,num :int) -> list:
-    """
-    等分列表
-    
-    Parameters:
-        ls - 待切分列表
-        num - 切分份数
-    
-    Returns:
-        list - 已切分列表
-    """
-    each = ls.__len__() // num #平均每份个数
-    re = ls.__len__() % num #余下未分配个数
-
-    l = 0
-    ans = []
-    for i in range(0,num):
-        if (i < re):#前re份多分配1个
-            ans.append(ls[l: l + each + 1])
-            l = l + each + 1
-        else:
-            ans.append(ls[l: l + each + 0])
-            l =l + each + 0
-    
-    return ans
 
 def func_threadpool(courseList :list) -> list:
     """

@@ -5,14 +5,8 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+from Tools.Exception import LoadException
 
-class LoadError(Exception):
-    """
-    读取异常
-    """
-    def __init__(self, name, reason):
-        self.name = name
-        self.reason = reason
 
 def __getCourseIdFile(path:str) -> list:
     """
@@ -86,4 +80,4 @@ def getCourseId(htmlSource :str) -> list:
         print("========================================")
         return idList
     except Exception as err:
-        raise LoadError('读取失败',f'当前路径为{htmlSource}，请检查后重试...')
+        raise LoadException('读取失败',f'当前路径为{htmlSource}，请检查后重试...')

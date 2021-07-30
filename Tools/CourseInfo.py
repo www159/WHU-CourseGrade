@@ -4,38 +4,12 @@
 # @Author  : NagisaCo
 import os
 import Tools.API.bkxk as bkxk
-from Tools.ConfigLoader import Config
+from Tools.Tool import __divList
 from requests.sessions import Session
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-def __divList(ls :list,num :int) ->list:
-    """
-    等分列表
-    
-    Parameters:
-        ls - 待切分列表
-        num - 切分份数
-    
-    Returns:
-        list - 已切分列表
-    """
-    each = ls.__len__() // num #平均每份个数
-    re = ls.__len__() % num #余下未分配个数
-
-    l = 0
-    ans = []
-    for i in range(0,num):
-        if (i < re):#前re份多分配1个
-            ans.append(ls[l: l + each + 1])
-            l = l + each + 1
-        else:
-            ans.append(ls[l: l + each + 0])
-            l =l + each + 0
-    
-    return ans
-
-def init(configSetting :Config):
+def init(configSetting :dict):
     """
     初始化
     
@@ -46,7 +20,7 @@ def init(configSetting :Config):
         requests.session - 已登录的session
     """
     config = configSetting
-    return bkxk.init(config.studentNum,config.encryptedPassword,config.gnmkdm)
+    return bkxk.init(config['bkxk']['studentnum'],config['bkxk']['encryptedpassword'],config['bkxk']['gnmkdm'])
 
 def func_threadpool(idList :list) -> list:
     """

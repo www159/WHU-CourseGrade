@@ -11,6 +11,8 @@
     <OutputPath>.</OutputPath>
     <Name>CourseGrade</Name>
     <RootNamespace>CourseGrade</RootNamespace>
+    <InterpreterId>CondaEnv|CondaEnv|coursegrade_env</InterpreterId>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +45,16 @@
     <Compile Include="Encryptor.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Tools\DB.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tools\Exception.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Tools\GradeInfo.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tools\Tool.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Tools\__init__.py">
@@ -56,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|coursegrade_env" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

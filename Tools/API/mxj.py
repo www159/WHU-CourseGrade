@@ -6,15 +6,9 @@ import json
 import time
 import requests
 from Tools.API.bkxk import CourseInfo
-_path = "https://www.campuses.cn"
+from Tools.Exception import TokenException
 
-class TokenError(Exception):
-    """
-    Token异常
-    """
-    def __init__(self, name, reason):
-        self.name = name
-        self.reason = reason
+_path = "https://www.campuses.cn"
 
 class GradeInfo:
     """
@@ -80,7 +74,7 @@ def __getGrade(courseName :str, token :str) -> GradeInfo:
             return False
         return result
     elif(response['code'] == 401 and response["message"] == "auth error: token is invalid"): #token无效
-        raise TokenError("campuses登录失败","token无效或已过期，请重新抓包有效token后重试")
+        raise TokenException("campuses登录失败","token无效或已过期，请重新抓包后重试...")
     else: #其他错误
         return False
     
