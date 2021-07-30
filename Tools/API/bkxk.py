@@ -210,7 +210,7 @@ def getInfo(_in :tuple) -> CourseInfo:
     }
     requests.adapters.DEFAULT_RETRIES = 10 #设定默认重试次数
     response = session.request("POST", url, headers=headers, data=payload, timeout=20)
-    time.sleep(0.1) #暂停0.1s 防止爬虫速度过快
+    time.sleep(0.5) #暂停0.5s 防止爬虫速度过快
     response.encoding = response.apparent_encoding
     soup = BeautifulSoup(response.text,'html.parser')
 

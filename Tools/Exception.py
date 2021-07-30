@@ -34,3 +34,11 @@ class LoadException(Exception):
     def __init__(self, name, reason):
         self.name = name
         self.reason = reason
+
+class DBException(Exception):
+    """
+    数据库操作异常
+    """
+    def __init__(self, name, reason):
+        self.name = name
+        self.reason = reason

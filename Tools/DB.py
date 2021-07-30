@@ -10,6 +10,7 @@ from Tools.API.mxj import GradeInfo
 from Tools.Tool import __decryptRSA
 from Tools.Tool import __getDatetime
 from Tools.API.bkxk import CourseInfo
+from Tools.Exception import DBException
 from Tools.Exception import RSAException
 
 def init(_host :str, _user :str, _password :str, _database :str):
@@ -95,7 +96,7 @@ def __updateGrade(courseid: int, grade: GradeInfo):
                       f"WHERE id={courseid}")
         cursor.execute(update_sql)
 
-def update(course :CourseInfo):
+def __updateCourse(course :CourseInfo):
     """
     更新信息
     
@@ -135,3 +136,51 @@ def update(course :CourseInfo):
         print(course.name)
     except Exception: #事物回滚
         db.rollback()
+
+def update(_host :str, _user :str, _password :str, _database :str, course :list):
+    """
+    更新数据库数据
+    
+    Parameters:
+        _host - 数据库服务器地址
+        _user - 登录用户名
+        _password - 已加密登录密码
+        _database - 数据库名
+        course - 待更新数据
+
+    Returns:
+    
+    Exceptions:
+        RSAException - RSA解密异常
+        DBException - 数据库操作异常
+    """
+    try:
+        global db
+        db = pymysql.connect(host = _host,
+                             user = _user, 
+                             password = __decryptRSA(_password), 
+                             database = _database, 
+                             cursorclass = pymysql.cursors.DictCursor)
+        global cursor
+        cursor = db.cursor()
+    except (NameError, RuntimeError, pymysql.err.OperationalError):
+        raise DBException("数据库连接异常",f"无法连接至{_user}@{_host}的{_database}数据库，请检查配置后重试...")
+    
+    print("========================================")
+    print("Start updating database")
+    print("========================================")
+
+    try:
+        for item in course:
+            __updateCourse(item)
+        print("========================================")
+        print("Complete updating database")
+        print(f"Totol: {len(course)}")
+        print("========================================")
+
+    except Exception:
+        raise DBException("数据库操作异常","请检查数据库结构或重新导入course_grade.sql后重试...")
+    
+    finally:
+        db.close()
+        cursor.close()

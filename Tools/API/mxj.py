@@ -62,7 +62,7 @@ def __getGrade(courseName :str, token :str) -> GradeInfo:
     requests.adapters.DEFAULT_RETRIES = 10
     response = s.request("GET", url, headers=headers, data=payload, timeout=20).json()
     s.close()
-    time.sleep(0.1) #
+    time.sleep(0.5)
     if (response['code'] == 0):
         result = []
         for i in response['data']:

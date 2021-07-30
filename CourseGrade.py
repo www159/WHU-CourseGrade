@@ -6,12 +6,11 @@ import os
 import sys
 import pickle
 import Tools.DB as DB
+import Tools.Exception
 import Tools.CourseId as CourseId
 import Tools.GradeInfo as GradeInfo
 import Tools.CourseInfo as CourseInfo
 import Tools.ConfigLoader as ConfigLoader
-from Tools.API.bkxk import RSAException
-from Tools.API.mxj import TokenException
 
 def __LoadConfig() -> dict:
     """
@@ -24,7 +23,7 @@ def __LoadConfig() -> dict:
     """
     try:
         return ConfigLoader.load()
-    except ConfigLoader.LoadConfigException as err:
+    except Tools.Exception.LoadConfigException as err:
         print(f"【{err.name}】{err.reason}")
         sys.exit(1)
 
@@ -68,7 +67,9 @@ def __getCourse(config :dict) -> list:
         session = CourseInfo.init(config)
         course = CourseInfo.getCourseInfo(idList, config['bkxk']['gnmkdm'], session)
         course_grade = GradeInfo.getGradeInfo(course, config['mxj']['token'])
-    except (CourseId.LoadException, RSAException, TokenException) as err:
+    except (Tools.Exception.LoadException, 
+            Tools.Exception.RSAException, 
+            Tools.Exception.TokenException) as err:
         print(f"【{err.name}】{err.reason}")
         sys.exit(1)
 
@@ -84,14 +85,15 @@ def __storeDatabase(course :list):
     Returns:
         
     """
-    DB.init(config['db']['server'], config['db']['username'], config['db']['encryptedpassword'], config['db']['database'])
     try:
-        for item in course:
-            DB.update(item)
-    
-        DB.close()
-    except Exception:
-        print("【数据库操作失败】请检查数据库结构或重新导入course_grade.sql后重试...")
+        DB.update(config['db']['server'], 
+                  config['db']['username'], 
+                  config['db']['encryptedpassword'], 
+                  config['db']['database'], 
+                  course)
+    except (Tools.Exception.DBException, 
+            Tools.Exception.RSAException) as err:
+        print(f"【{err.name}】{err.reason}")
         sys.exit(1)
 
 if __name__ == "__main__":
@@ -100,7 +102,8 @@ if __name__ == "__main__":
     info = __getCourse(config)
     __storeFile(info)
     #info = __loadFile() 
-    
+
+
     if (config['db']['server'] != "" and config['db']['username'] != "" and config['db']['encryptedpassword'] != "" and config['db']['database'] != ""):
         __storeDatabase(info)
     

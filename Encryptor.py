@@ -102,3 +102,4 @@ if __name__ == "__main__":
     print("Your encryptedPassword (also in your clipboard): \n")
     print(crypto)
     print("\n")
+    input() #pause
