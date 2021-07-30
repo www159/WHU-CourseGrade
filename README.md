@@ -211,3 +211,38 @@ database = course_grade
   当配置文件中db项目填写有效后，会自动更新数据库中的内容。
 
   ![WOVLvT.png](https://z3.ax1x.com/2021/07/30/WOVLvT.png)
+
+## 文件详情
+```
+CourseGrade
+│  .gitattributes
+│  .gitignore
+│  course.html          选课网页副本(提取courseid)
+│  CourseGrade.py       主程序(程序运行)
+│  CourseGrade.pyproj   CourseGrade项目
+│  CourseGrade.sln      VS解决方案(程序修改)
+│  course_grade.sql     MySQL数据库创建模板(MySQL执行)
+│  Encryptor.py         密码加密程序(程序运行)
+│  LICENSE              GPL-3.0 License
+│  package-lock.json
+│  package.json         npm文件(commitizen 规范化commit提交)
+│  README.md            本文件
+│  requirements.txt     项目依赖(运行前安装)
+│  result               结果结构化保存(用于本地保存CourseInfo类的列表)
+│  result.xlsx          结果Excel导出(便于数据分析)
+│
+└─Tools                 工具包
+    │  ConfigLoader.py  配置文件加载
+    │  CourseId.py      获取CourseID
+    │  CourseInfo.py    获取CourseInfo
+    │  DB.py            数据库操作
+    │  Exception.py     异常
+    │  GradeInfo.py     获取GradeInfo
+    │  Tool.py          工具
+    │  __init__.py
+    │
+    └─API               API包
+            bkxk.py     选课网页
+            mxj.py      梦想珈小程序
+            __init__.py
+```
